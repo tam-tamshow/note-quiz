@@ -9,7 +9,7 @@ type Props = {
   height?: number;
 };
 
-export default function ScoreSvg({ midi, width = 520, height = 180 }: Props) {
+export default function ScoreSvg({ midi, width = 350, height = 180 }: Props) {
   // レイアウト定数
   const padding = 16;
   const staffLeft = 64;
