@@ -17,6 +17,7 @@ import {
   ANSWER_CHOICES,
   type Question,
 } from "@/lib/quiz/generator";
+import PianoKeyboard from "./PianoKeyboard";
 
 type Result = {
   answered: true;
@@ -42,11 +43,15 @@ export default function QuizPage() {
     setResult(null);
   }
 
+  function samePitchClass(a: number, b: number) {
+    return ((a % 12) + 12) % 12 === ((b % 12) + 12) % 12;
+  }
+
   /* ---------- 回答 ---------- */
   function answer(answerMidi: number) {
     if (!q) return;
 
-    const correct = q.midi === answerMidi;
+    const correct = samePitchClass(q.midi, answerMidi);
 
     saveAttempt({
       questionId: q.id,
@@ -79,16 +84,6 @@ export default function QuizPage() {
     saveSettings(next);
     nextQuestion(next);
   }
-
-  /* ---------- 回答ボタン ---------- */
-  const choices = useMemo(
-    () =>
-      ANSWER_CHOICES.map((m) => ({
-        midi: m,
-        label: midiToLetter(m),
-      })),
-    []
-  );
 
   return (
     <main style={{ maxWidth: 720, margin: "24px auto", padding: 16 }}>
@@ -196,20 +191,11 @@ export default function QuizPage() {
         </div>
 
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {choices.map((c) => (
-            <button
-              key={c.midi}
-              onClick={() => answer(c.midi)}
-              disabled={!q || !!result}
-              style={{
-                padding: "10px 14px",
-                borderRadius: 10,
-                border: "1px solid #ccc",
-              }}
-            >
-              {c.label}
-            </button>
-          ))}
+          <PianoKeyboard
+            onPick={answer}
+            disabled={!q || !!result}
+            baseMidi={60} // C4開始（今は固定）
+          />
         </div>
 
         {/* ===== 結果 ===== */}
