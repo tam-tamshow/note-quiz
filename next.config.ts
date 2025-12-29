@@ -6,6 +6,7 @@ const basePath = isProd ? `/${repo}` : "";
 
 const nextConfig: NextConfig = {
   output: "export",
+  assetPrefix: isProd ? `/${repo}` : "",
 
   // Pagesでは画像最適化サーバーが使えない
   images: {
