@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 
 import ScoreSvg from "./ScoreSvg";
@@ -12,11 +12,7 @@ import {
   saveSettings,
   type QuizSettings,
 } from "@/lib/quiz/settings";
-import {
-  generateQuestion,
-  ANSWER_CHOICES,
-  type Question,
-} from "@/lib/quiz/generator";
+import { generateQuestion, type Question } from "@/lib/quiz/generator";
 import PianoKeyboard from "./PianoKeyboard";
 
 type Result = {
