@@ -86,7 +86,7 @@ export default function QuizPage() {
   }
 
   return (
-    <main style={{ maxWidth: 720, margin: "24px auto", padding: 16 }}>
+    <main style={{ maxWidth: 430, margin: "24px auto", padding: 16 }}>
       <h1 style={{ fontSize: 28, fontWeight: 700 }}>Note Quiz</h1>
 
       {/* ===== 出題設定 ===== */}
