@@ -1,18 +1,19 @@
 // lib/quiz/settings.ts
+
 export type QuizSettings = {
-  minMidi: number; // inclusive
-  maxMidi: number; // inclusive
-  whiteKeysOnly: boolean; // trueなら C D E F G A B のみ
-  weakBias: number; // 0..1  苦手優先の強さ
+  minMidi: number;
+  maxMidi: number;
+  whiteKeysOnly: boolean;
+  weakBias: number;
 };
 
 const KEY = "note_quiz_settings_v1";
 
 export const DEFAULT_SETTINGS: QuizSettings = {
-  minMidi: 60, // C4
-  maxMidi: 81, // A5
+  minMidi: 60,
+  maxMidi: 81,
   whiteKeysOnly: true,
-  weakBias: 0.4, // 40%くらいから始めるのが扱いやすい
+  weakBias: 0.4,
 };
 
 export function loadSettings(): QuizSettings {
@@ -21,6 +22,7 @@ export function loadSettings(): QuizSettings {
     const raw = localStorage.getItem(KEY);
     if (!raw) return DEFAULT_SETTINGS;
     const x = JSON.parse(raw) as Partial<QuizSettings>;
+
     return {
       minMidi: clampInt(x.minMidi ?? DEFAULT_SETTINGS.minMidi, 0, 127),
       maxMidi: clampInt(x.maxMidi ?? DEFAULT_SETTINGS.maxMidi, 0, 127),
