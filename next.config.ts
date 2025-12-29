@@ -17,6 +17,11 @@ const nextConfig: NextConfig = {
 
   // 静的ホスティングでは付けておくと安全
   trailingSlash: true,
+
+  env: {
+    NEXT_PUBLIC_BASE_PATH: basePath,
+  },
+
 };
 
 export default nextConfig;
