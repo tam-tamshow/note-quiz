@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { loadAttempts, clearAttempts, type Attempt } from "@/lib/quiz/storage";
 import { midiToName } from "@/lib/quiz/music";
 
+const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export default function StatsPage() {
   const [attempts, setAttempts] = useState<Attempt[]>([]);
 
@@ -90,8 +92,8 @@ export default function StatsPage() {
       </div>
 
       <div style={{ marginTop: 16, display: "flex", gap: 12 }}>
-        <Link href="/quiz">クイズへ</Link>
-        <Link href="/">トップへ</Link>
+        <Link href={`${base}/quiz`}>クイズへ</Link>
+        <Link href={base}>トップへ</Link>
       </div>
     </main>
   );
