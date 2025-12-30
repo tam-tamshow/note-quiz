@@ -15,6 +15,8 @@ import {
 import { generateQuestion, type Question } from "@/lib/quiz/generator";
 import PianoKeyboard from "./PianoKeyboard";
 
+const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 type Result = {
   answered: true;
   correct: boolean;
@@ -233,8 +235,8 @@ export default function QuizPage() {
 
       {/* ===== ナビ ===== */}
       <div style={{ marginTop: 16, display: "flex", gap: 12 }}>
-        <Link href="/stats">成績を見る</Link>
-        <Link href="/">トップへ</Link>
+        <Link href={`${base}/stats`}>成績を見る</Link>
+        <Link href={base}>トップへ</Link>
       </div>
     </main>
   );

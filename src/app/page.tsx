@@ -3,11 +3,13 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace("/quiz");
+    router.replace(`${base}/quiz`);
   }, [router]);
 
   return (
