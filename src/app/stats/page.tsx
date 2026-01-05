@@ -1,18 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { loadAttempts, clearAttempts, type Attempt } from "@/lib/quiz/storage";
 import { midiToName } from "@/lib/quiz/music";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 export default function StatsPage() {
-  const [attempts, setAttempts] = useState<Attempt[]>([]);
-
-  useEffect(() => {
-    setAttempts(loadAttempts());
-  }, []);
+  const [attempts, setAttempts] = useState<Attempt[]>(() => loadAttempts());
 
   const stats = useMemo(() => {
     const total = attempts.length;
