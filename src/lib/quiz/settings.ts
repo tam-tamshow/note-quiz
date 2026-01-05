@@ -7,6 +7,8 @@ export type QuizSettings = {
 };
 
 const KEY = "note_quiz_settings_v1";
+export const MIN_MIDI = 55; // G3
+export const MAX_MIDI = 95; // B6
 
 export const DEFAULT_SETTINGS: QuizSettings = {
   minMidi: 60,
@@ -22,8 +24,8 @@ export function loadSettings(): QuizSettings {
     const x = JSON.parse(raw) as Partial<QuizSettings>;
 
     return {
-      minMidi: clampInt(x.minMidi ?? DEFAULT_SETTINGS.minMidi, 0, 127),
-      maxMidi: clampInt(x.maxMidi ?? DEFAULT_SETTINGS.maxMidi, 0, 127),
+      minMidi: clampInt(x.minMidi ?? DEFAULT_SETTINGS.minMidi, MIN_MIDI, MAX_MIDI),
+      maxMidi: clampInt(x.maxMidi ?? DEFAULT_SETTINGS.maxMidi, MIN_MIDI, MAX_MIDI),
       weakBias: clampNum(x.weakBias ?? DEFAULT_SETTINGS.weakBias, 0, 1),
     };
   } catch {

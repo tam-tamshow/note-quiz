@@ -11,6 +11,8 @@ import {
   loadSettings,
   saveSettings,
   type QuizSettings,
+  MIN_MIDI,
+  MAX_MIDI,
 } from "@/lib/quiz/settings";
 import { generateQuestion, type Question } from "@/lib/quiz/generator";
 import PianoKeyboard from "./PianoKeyboard";
@@ -78,6 +80,15 @@ export default function QuizPageClient() {
       [next.minMidi, next.maxMidi] = [next.maxMidi, next.minMidi];
     }
 
+    next.minMidi = Math.min(
+      MAX_MIDI,
+      Math.max(MIN_MIDI, Math.trunc(next.minMidi))
+    );
+    next.maxMidi = Math.min(
+      MAX_MIDI,
+      Math.max(MIN_MIDI, Math.trunc(next.maxMidi))
+    );
+
     setSettings(next);
     saveSettings(next);
     nextQuestion(next);
@@ -103,8 +114,8 @@ export default function QuizPageClient() {
             <span style={{ width: 120 }}>最低音</span>
             <input
               type="number"
-              min={0}
-              max={127}
+              min={MIN_MIDI}
+              max={MAX_MIDI}
               value={settings.minMidi}
               onChange={(e) =>
                 updateSettings({
@@ -120,8 +131,8 @@ export default function QuizPageClient() {
             <span style={{ width: 120 }}>最高音</span>
             <input
               type="number"
-              min={0}
-              max={127}
+              min={MIN_MIDI}
+              max={MAX_MIDI}
               value={settings.maxMidi}
               onChange={(e) =>
                 updateSettings({
@@ -155,6 +166,17 @@ export default function QuizPageClient() {
             これまでの回答数：{attempts.length}
           </div>
         </div>
+        {(settings.minMidi === MIN_MIDI || settings.maxMidi === MAX_MIDI) && (
+          <div style={{ marginTop: 8, fontSize: 12, color: "#8a5a00" }}>
+            {settings.minMidi === MIN_MIDI &&
+              `最低音は${midiToName(MIN_MIDI)}が下限です`}
+            {settings.minMidi === MIN_MIDI && settings.maxMidi === MAX_MIDI
+              ? " / "
+              : ""}
+            {settings.maxMidi === MAX_MIDI &&
+              `最高音は${midiToName(MAX_MIDI)}が上限です`}
+          </div>
+        )}
       </section>
 
       {/* ===== 出題 ===== */}
