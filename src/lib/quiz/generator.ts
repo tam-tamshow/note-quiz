@@ -25,10 +25,8 @@ function buildMidiPool(settings: QuizSettings): number[] {
 
   const pool: number[] = [];
   for (let m = min; m <= max; m++) {
-    if (settings.whiteKeysOnly) {
-      const pc = ((m % 12) + 12) % 12;
-      if (!WHITE_PCS.has(pc)) continue;
-    }
+    const pc = ((m % 12) + 12) % 12;
+    if (!WHITE_PCS.has(pc)) continue;
     pool.push(m);
   }
 

@@ -134,19 +134,6 @@ export default function QuizPageClient() {
           </label>
 
           <label style={{ display: "flex", gap: 12 }}>
-            <span style={{ width: 120 }}>白鍵のみ</span>
-            <input
-              type="checkbox"
-              checked={settings.whiteKeysOnly}
-              onChange={(e) =>
-                updateSettings({
-                  whiteKeysOnly: e.target.checked,
-                })
-              }
-            />
-          </label>
-
-          <label style={{ display: "flex", gap: 12 }}>
             <span style={{ width: 120 }}>苦手優先</span>
             <input
               type="range"

@@ -3,7 +3,6 @@
 export type QuizSettings = {
   minMidi: number;
   maxMidi: number;
-  whiteKeysOnly: boolean;
   weakBias: number;
 };
 
@@ -12,7 +11,6 @@ const KEY = "note_quiz_settings_v1";
 export const DEFAULT_SETTINGS: QuizSettings = {
   minMidi: 60,
   maxMidi: 81,
-  whiteKeysOnly: true,
   weakBias: 0.4,
 };
 
@@ -26,7 +24,6 @@ export function loadSettings(): QuizSettings {
     return {
       minMidi: clampInt(x.minMidi ?? DEFAULT_SETTINGS.minMidi, 0, 127),
       maxMidi: clampInt(x.maxMidi ?? DEFAULT_SETTINGS.maxMidi, 0, 127),
-      whiteKeysOnly: x.whiteKeysOnly ?? DEFAULT_SETTINGS.whiteKeysOnly,
       weakBias: clampNum(x.weakBias ?? DEFAULT_SETTINGS.weakBias, 0, 1),
     };
   } catch {
