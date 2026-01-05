@@ -159,7 +159,8 @@ export default function QuizPageClient() {
       </h1>
 
       {/* ===== 出題設定 ===== */}
-      <section
+      <details
+        className="settings-accordion"
         style={{
           marginTop: 12,
           padding: 16,
@@ -167,91 +168,93 @@ export default function QuizPageClient() {
           borderRadius: 12,
         }}
       >
-        <div style={{ fontWeight: 700, marginBottom: 8 }}>出題設定</div>
+        <summary className="settings-summary">出題設定</summary>
 
-        <div style={{ display: "grid", gap: 10 }}>
-          <label style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <span style={{ width: 120 }}>最低音</span>
-            <input
-              type="text"
-              inputMode="text"
-              placeholder="C4"
-              value={minInput}
-              onChange={(e) => {
-                setMinInput(e.target.value);
-                setMinError(null);
-              }}
-              onBlur={() => applyNoteInput(minInput, "min", setMinError)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  applyNoteInput(minInput, "min", setMinError);
+        <div className="settings-body">
+          <div style={{ display: "grid", gap: 10 }}>
+            <label style={{ display: "flex", gap: 12, alignItems: "center" }}>
+              <span style={{ width: 120 }}>最低音</span>
+              <input
+                type="text"
+                inputMode="text"
+                placeholder="C4"
+                value={minInput}
+                onChange={(e) => {
+                  setMinInput(e.target.value);
+                  setMinError(null);
+                }}
+                onBlur={() => applyNoteInput(minInput, "min", setMinError)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    applyNoteInput(minInput, "min", setMinError);
+                  }
+                }}
+                style={{ width: 90 }}
+              />
+            </label>
+            {minError && (
+              <div style={{ fontSize: 12, color: "#8a2a2a" }}>{minError}</div>
+            )}
+
+            <label style={{ display: "flex", gap: 12, alignItems: "center" }}>
+              <span style={{ width: 120 }}>最高音</span>
+              <input
+                type="text"
+                inputMode="text"
+                placeholder="G5"
+                value={maxInput}
+                onChange={(e) => {
+                  setMaxInput(e.target.value);
+                  setMaxError(null);
+                }}
+                onBlur={() => applyNoteInput(maxInput, "max", setMaxError)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    applyNoteInput(maxInput, "max", setMaxError);
+                  }
+                }}
+                style={{ width: 90 }}
+              />
+            </label>
+            {maxError && (
+              <div style={{ fontSize: 12, color: "#8a2a2a" }}>{maxError}</div>
+            )}
+
+            <label style={{ display: "flex", gap: 12 }}>
+              <span style={{ width: 120 }}>苦手優先</span>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={Math.round(settings.weakBias * 100)}
+                onChange={(e) =>
+                  updateSettings({
+                    weakBias: Number(e.target.value) / 100,
+                  })
                 }
-              }}
-              style={{ width: 90 }}
-            />
-          </label>
-          {minError && (
-            <div style={{ fontSize: 12, color: "#8a2a2a" }}>{minError}</div>
-          )}
+              />
+              <span style={{ width: 60 }}>
+                {Math.round(settings.weakBias * 100)}%
+              </span>
+            </label>
 
-          <label style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <span style={{ width: 120 }}>最高音</span>
-            <input
-              type="text"
-              inputMode="text"
-              placeholder="G5"
-              value={maxInput}
-              onChange={(e) => {
-                setMaxInput(e.target.value);
-                setMaxError(null);
-              }}
-              onBlur={() => applyNoteInput(maxInput, "max", setMaxError)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  applyNoteInput(maxInput, "max", setMaxError);
-                }
-              }}
-              style={{ width: 90 }}
-            />
-          </label>
-          {maxError && (
-            <div style={{ fontSize: 12, color: "#8a2a2a" }}>{maxError}</div>
-          )}
-
-          <label style={{ display: "flex", gap: 12 }}>
-            <span style={{ width: 120 }}>苦手優先</span>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={Math.round(settings.weakBias * 100)}
-              onChange={(e) =>
-                updateSettings({
-                  weakBias: Number(e.target.value) / 100,
-                })
-              }
-            />
-            <span style={{ width: 60 }}>
-              {Math.round(settings.weakBias * 100)}%
-            </span>
-          </label>
-
-          <div style={{ fontSize: 12, opacity: 0.7 }}>
-            これまでの回答数：{attempts.length}
+            <div style={{ fontSize: 12, opacity: 0.7 }}>
+              これまでの回答数：{attempts.length}
+            </div>
           </div>
+          {(settings.minMidi === MIN_MIDI || settings.maxMidi === MAX_MIDI) && (
+            <div style={{ marginTop: 8, fontSize: 12, color: "#8a5a00" }}>
+              {settings.minMidi === MIN_MIDI &&
+                `最低音は${midiToName(MIN_MIDI)}が下限です`}
+              {settings.minMidi === MIN_MIDI && settings.maxMidi === MAX_MIDI
+                ? " / "
+                : ""}
+              {settings.maxMidi === MAX_MIDI &&
+                `最高音は${midiToName(MAX_MIDI)}が上限です`}
+            </div>
+          )}
         </div>
-        {(settings.minMidi === MIN_MIDI || settings.maxMidi === MAX_MIDI) && (
-          <div style={{ marginTop: 8, fontSize: 12, color: "#8a5a00" }}>
-            {settings.minMidi === MIN_MIDI &&
-              `最低音は${midiToName(MIN_MIDI)}が下限です`}
-            {settings.minMidi === MIN_MIDI && settings.maxMidi === MAX_MIDI
-              ? " / "
-              : ""}
-            {settings.maxMidi === MAX_MIDI &&
-              `最高音は${midiToName(MAX_MIDI)}が上限です`}
-          </div>
-        )}
-      </section>
+      </details>
 
       {/* ===== 出題 ===== */}
       <div
@@ -355,6 +358,30 @@ export default function QuizPageClient() {
           .quiz-title {
             font-size: 24px;
           }
+        }
+
+        .settings-summary {
+          font-weight: 700;
+          cursor: pointer;
+          list-style: none;
+        }
+
+        .settings-summary::-webkit-details-marker {
+          display: none;
+        }
+
+        .settings-summary::after {
+          content: "▾";
+          float: right;
+          color: #555;
+        }
+
+        .settings-accordion[open] .settings-summary::after {
+          content: "▴";
+        }
+
+        .settings-body {
+          margin-top: 10px;
         }
       `}</style>
     </main>
