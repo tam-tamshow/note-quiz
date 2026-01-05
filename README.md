@@ -1,37 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# note-quiz
 
-## Getting Started
+Next.js（App Router）で作った音名クイズです。GitHub Pages 向けに静的出力しています。
 
-First, run the development server:
+## 主な機能
+
+- ト音記号の譜面表示（白鍵のみのランダム出題）
+- クリック可能な鍵盤で回答
+- localStorage による成績保存
+- 統計表示（正答率・苦手音）
+- 出題範囲・苦手優先の調整
+
+## 技術スタック
+
+- Next.js 16（App Router / static export）
+- React 19
+- TypeScript
+
+## ローカル開発
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ビルド（静的出力）
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`out/` に静的サイトが生成されます。
 
-## Learn More
+## GitHub Pages へのデプロイ
 
-To learn more about Next.js, take a look at the following resources:
+このプロジェクトは `next.config.ts` で base path を指定して静的出力します。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. `next.config.ts` のリポジトリ名を設定:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```ts
+const repo = "note-quiz";
+```
 
-## Deploy on Vercel
+2. 静的出力をビルド:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run build
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# note-quiz
+3. `out/` を GitHub Pages へデプロイ（Pages の workflow か `gh-pages` ブランチに配置）
+
+注意:
+
+- 内部リンクは `NEXT_PUBLIC_BASE_PATH` を利用しています（本番ビルド時に `next.config.ts` から設定）
+- GitHub Pages は画像最適化を使えないため `images.unoptimized` を有効化しています
+
+## スクリプト
+
+- `npm run dev` - 開発サーバー起動
+- `npm run build` - 静的出力ビルド
+- `npm run start` - Next.js サーバー起動（静的ホスティングでは未使用）
+- `npm run lint` - ESLint 実行
+
+## ライセンス
+
+MIT
