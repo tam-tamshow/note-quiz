@@ -95,8 +95,13 @@ export default function QuizPageClient() {
   }
 
   return (
-    <main style={{ maxWidth: 430, margin: "24px auto", padding: 16 }}>
-      <h1 style={{ fontSize: 28, fontWeight: 700 }}>Note Quiz</h1>
+    <main
+      className="quiz-main"
+      style={{ maxWidth: 430, margin: "24px auto", padding: 16, width: "100%" }}
+    >
+      <h1 className="quiz-title" style={{ fontSize: 28, fontWeight: 700 }}>
+        Note Quiz
+      </h1>
 
       {/* ===== 出題設定 ===== */}
       <section
@@ -188,7 +193,9 @@ export default function QuizPageClient() {
           borderRadius: 12,
         }}
       >
-        {q ? <ScoreSvg midi={q.midi} /> : "Loading..."}
+        <div className="score-wrap">
+          {q ? <ScoreSvg midi={q.midi} /> : "Loading..."}
+        </div>
       </div>
 
       {/* ===== 回答 ===== */}
@@ -197,7 +204,7 @@ export default function QuizPageClient() {
           答えを選んでください
         </div>
 
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <div className="keyboard-wrap">
           <PianoKeyboard
             onPick={answer}
             disabled={!q || !!result}
@@ -247,6 +254,40 @@ export default function QuizPageClient() {
         <Link href={`${base}/stats`}>成績を見る</Link>
         <Link href={`${base}/`}>トップへ</Link>
       </div>
+      <style jsx>{`
+        .quiz-main {
+          padding: 16px;
+        }
+
+        .score-wrap {
+          width: 100%;
+          max-width: 350px;
+          margin: 0 auto;
+        }
+
+        .score-wrap :global(svg) {
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+
+        .keyboard-wrap {
+          display: flex;
+          justify-content: center;
+          width: 100%;
+        }
+
+        @media (max-width: 520px) {
+          .quiz-main {
+            margin: 12px auto;
+            padding: 12px;
+          }
+
+          .quiz-title {
+            font-size: 24px;
+          }
+        }
+      `}</style>
     </main>
   );
 }

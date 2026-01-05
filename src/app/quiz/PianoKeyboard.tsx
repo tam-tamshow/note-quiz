@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { midiToName } from "@/lib/quiz/music";
 
 type Props = {
@@ -49,62 +50,30 @@ export default function PianoKeyboard({
     whiteIndex: k.whiteIndex,
   }));
 
-  // レイアウト定数（好みで調整）
-  const whiteW = 56;
-  const whiteH = 170;
-  const blackW = 34;
-  const blackH = 105;
-
-  // 黒鍵の横位置：白鍵の中心あたりに配置して「間」に見せる
-  // whiteIndex の右寄りに置くため、+ whiteW*0.68 くらいを足す
-  const blackX = (whiteIndex: number) =>
-    whiteIndex * whiteW + whiteW * 0.68 - blackW / 2;
-
   return (
     <div
-      style={{
-        position: "relative",
-        width: whiteW * whiteKeys.length,
-        height: whiteH,
-        userSelect: "none",
-      }}
+      className="piano"
+      style={
+        {
+          "--white-count": whiteKeys.length,
+        } as CSSProperties
+      }
     >
       {/* 白鍵（下段） */}
-      <div style={{ display: "flex" }}>
+      <div className="white-keys">
         {whiteKeys.map((k) => (
           <button
             key={k.midi}
             onClick={() => onPick(k.midi)}
             disabled={disabled}
             title={midiToName(k.midi)}
-            style={{
-              width: whiteW,
-              height: whiteH,
-              border: "1px solid #333",
-              borderRight: "none",
-              background: "white",
-              borderBottomLeftRadius: 10,
-              borderBottomRightRadius: 10,
-              display: "flex",
-              alignItems: "flex-end",
-              justifyContent: "center",
-              paddingBottom: 10,
-            }}
+            className="white-key"
           >
-            <span style={{ fontSize: 14 }}>{k.label}</span>
+            <span className="white-key-label">{k.label}</span>
           </button>
         ))}
         {/* 右端の枠線を戻す（最後だけ） */}
-        <div
-          style={{
-            position: "absolute",
-            right: 0,
-            top: 0,
-            width: 1,
-            height: whiteH,
-            background: "#333",
-          }}
-        />
+        <div className="white-right-border" />
       </div>
 
       {/* 黒鍵（上段・絶対配置） */}
@@ -114,25 +83,77 @@ export default function PianoKeyboard({
           onClick={() => onPick(k.midi)}
           disabled={disabled}
           title={midiToName(k.midi)}
+          className="black-key"
           style={{
-            position: "absolute",
-            left: blackX(k.whiteIndex),
-            top: 0,
-            width: blackW,
-            height: blackH,
-            border: "1px solid #111",
-            background: "#111",
-            color: "white",
-            borderRadius: 8,
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "center",
-            paddingBottom: 10,
+            left: `calc(var(--white-w) * (${k.whiteIndex} + 0.68) - var(--black-w) / 2)`,
           }}
         >
-          <span style={{ fontSize: 12 }}>{k.label}</span>
+          <span className="black-key-label">{k.label}</span>
         </button>
       ))}
+      <style jsx>{`
+        .piano {
+          position: relative;
+          width: 100%;
+          max-width: 392px;
+          height: var(--white-h);
+          user-select: none;
+          --white-w: calc(100% / var(--white-count));
+          --white-h: clamp(120px, 32vw, 170px);
+          --black-w: calc(var(--white-w) * 0.6);
+          --black-h: calc(var(--white-h) * 0.62);
+        }
+
+        .white-keys {
+          display: flex;
+        }
+
+        .white-key {
+          flex: 1 1 0;
+          height: var(--white-h);
+          border: 1px solid #333;
+          border-right: none;
+          background: white;
+          border-bottom-left-radius: 10px;
+          border-bottom-right-radius: 10px;
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          padding-bottom: 10px;
+        }
+
+        .white-key-label {
+          font-size: 14px;
+        }
+
+        .white-right-border {
+          position: absolute;
+          right: 0;
+          top: 0;
+          width: 1px;
+          height: var(--white-h);
+          background: #333;
+        }
+
+        .black-key {
+          position: absolute;
+          top: 0;
+          width: var(--black-w);
+          height: var(--black-h);
+          border: 1px solid #111;
+          background: #111;
+          color: white;
+          border-radius: 8px;
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          padding-bottom: 10px;
+        }
+
+        .black-key-label {
+          font-size: 12px;
+        }
+      `}</style>
     </div>
   );
 }
