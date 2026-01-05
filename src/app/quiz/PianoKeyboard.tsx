@@ -124,6 +124,7 @@ export default function PianoKeyboard({
 
         .white-key-label {
           font-size: 14px;
+          color: #888;
         }
 
         .white-right-border {
