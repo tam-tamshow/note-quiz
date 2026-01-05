@@ -89,7 +89,7 @@ export default function StatsPage() {
 
       <div style={{ marginTop: 16, display: "flex", gap: 12 }}>
         <Link href={`${base}/quiz`}>クイズへ</Link>
-        <Link href={base}>トップへ</Link>
+        <Link href={`${base}/`}>トップへ</Link>
       </div>
     </main>
   );

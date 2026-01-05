@@ -236,7 +236,7 @@ export default function QuizPage() {
       {/* ===== ナビ ===== */}
       <div style={{ marginTop: 16, display: "flex", gap: 12 }}>
         <Link href={`${base}/stats`}>成績を見る</Link>
-        <Link href={base}>トップへ</Link>
+        <Link href={`${base}/`}>トップへ</Link>
       </div>
     </main>
   );
