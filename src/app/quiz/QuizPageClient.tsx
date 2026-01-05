@@ -18,6 +18,15 @@ import { generateQuestion, type Question } from "@/lib/quiz/generator";
 import PianoKeyboard from "./PianoKeyboard";
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const WHITE_MIDI = new Map([
+  ["C", 0],
+  ["D", 2],
+  ["E", 4],
+  ["F", 5],
+  ["G", 7],
+  ["A", 9],
+  ["B", 11],
+]);
 
 type Result = {
   answered: true;
@@ -27,10 +36,19 @@ type Result = {
 } | null;
 
 export default function QuizPageClient() {
-  const [settings, setSettings] = useState<QuizSettings>(() => loadSettings()); // 初期値を関数で設定
+  const initialSettings = loadSettings();
+  const [settings, setSettings] = useState<QuizSettings>(() => initialSettings); // 初期値を関数で設定
   const [attempts, setAttempts] = useState<Attempt[]>(() => loadAttempts()); // 初期値を関数で設定
+  const [minInput, setMinInput] = useState(() =>
+    midiToName(initialSettings.minMidi)
+  );
+  const [maxInput, setMaxInput] = useState(() =>
+    midiToName(initialSettings.maxMidi)
+  );
+  const [minError, setMinError] = useState<string | null>(null);
+  const [maxError, setMaxError] = useState<string | null>(null);
   const [q, setQ] = useState<Question | null>(() =>
-    generateQuestion(loadSettings(), loadAttempts())
+    generateQuestion(initialSettings, loadAttempts())
   ); // 初期値を計算
   const [result, setResult] = useState<Result>(null);
 
@@ -45,6 +63,41 @@ export default function QuizPageClient() {
 
   function samePitchClass(a: number, b: number) {
     return ((a % 12) + 12) % 12 === ((b % 12) + 12) % 12;
+  }
+
+  function parseWhiteNote(value: string): number | null {
+    const trimmed = value.trim().toUpperCase();
+    const match = trimmed.match(/^([A-G])(-?\d+)$/);
+    if (!match) return null;
+    const pc = WHITE_MIDI.get(match[1]);
+    if (pc === undefined) return null;
+    const octave = Number(match[2]);
+    if (!Number.isFinite(octave)) return null;
+    return (octave + 1) * 12 + pc;
+  }
+
+  function applyNoteInput(
+    value: string,
+    kind: "min" | "max",
+    setError: (msg: string | null) => void
+  ) {
+    const midi = parseWhiteNote(value);
+    if (midi === null) {
+      setError("C4 のように入力してください");
+      return;
+    }
+    if (midi < MIN_MIDI || midi > MAX_MIDI) {
+      setError(
+        `${midiToName(MIN_MIDI)}〜${midiToName(MAX_MIDI)}の範囲で入力してください`
+      );
+      return;
+    }
+    setError(null);
+    if (kind === "min") {
+      updateSettings({ minMidi: midi });
+    } else {
+      updateSettings({ maxMidi: midi });
+    }
   }
 
   /* ---------- 回答 ---------- */
@@ -90,6 +143,8 @@ export default function QuizPageClient() {
     );
 
     setSettings(next);
+    setMinInput(midiToName(next.minMidi));
+    setMaxInput(midiToName(next.maxMidi));
     saveSettings(next);
     nextQuestion(next);
   }
@@ -115,39 +170,53 @@ export default function QuizPageClient() {
         <div style={{ fontWeight: 700, marginBottom: 8 }}>出題設定</div>
 
         <div style={{ display: "grid", gap: 10 }}>
-          <label style={{ display: "flex", gap: 12 }}>
+          <label style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <span style={{ width: 120 }}>最低音</span>
             <input
-              type="number"
-              min={MIN_MIDI}
-              max={MAX_MIDI}
-              value={settings.minMidi}
-              onChange={(e) =>
-                updateSettings({
-                  minMidi: Number(e.target.value),
-                })
-              }
+              type="text"
+              inputMode="text"
+              placeholder="C4"
+              value={minInput}
+              onChange={(e) => {
+                setMinInput(e.target.value);
+                setMinError(null);
+              }}
+              onBlur={() => applyNoteInput(minInput, "min", setMinError)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  applyNoteInput(minInput, "min", setMinError);
+                }
+              }}
               style={{ width: 90 }}
             />
-            <span style={{ opacity: 0.7 }}>{midiToName(settings.minMidi)}</span>
           </label>
+          {minError && (
+            <div style={{ fontSize: 12, color: "#8a2a2a" }}>{minError}</div>
+          )}
 
-          <label style={{ display: "flex", gap: 12 }}>
+          <label style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <span style={{ width: 120 }}>最高音</span>
             <input
-              type="number"
-              min={MIN_MIDI}
-              max={MAX_MIDI}
-              value={settings.maxMidi}
-              onChange={(e) =>
-                updateSettings({
-                  maxMidi: Number(e.target.value),
-                })
-              }
+              type="text"
+              inputMode="text"
+              placeholder="G5"
+              value={maxInput}
+              onChange={(e) => {
+                setMaxInput(e.target.value);
+                setMaxError(null);
+              }}
+              onBlur={() => applyNoteInput(maxInput, "max", setMaxError)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  applyNoteInput(maxInput, "max", setMaxError);
+                }
+              }}
               style={{ width: 90 }}
             />
-            <span style={{ opacity: 0.7 }}>{midiToName(settings.maxMidi)}</span>
           </label>
+          {maxError && (
+            <div style={{ fontSize: 12, color: "#8a2a2a" }}>{maxError}</div>
+          )}
 
           <label style={{ display: "flex", gap: 12 }}>
             <span style={{ width: 120 }}>苦手優先</span>
