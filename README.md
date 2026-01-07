@@ -1,6 +1,6 @@
 # note-quiz
 
-Next.js（App Router）で作った音符の音名クイズです。GitHub Pages 向けに静的出力しています。
+Next.js（App Router）で作った、楽譜読みトレーニング用の音符の音名クイズです。GitHub Pages 向けに静的出力しています。
 
 クイズページ : https://tam-tamshow.github.io/note-quiz/quiz/
 
