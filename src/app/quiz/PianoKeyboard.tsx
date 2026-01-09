@@ -100,7 +100,7 @@ export default function PianoKeyboard({
           user-select: none;
           --white-w: calc(100% / var(--white-count));
           --white-h: clamp(120px, 32vw, 170px);
-          --black-w: var(--white-w);
+          --black-w: calc(var(--white-w) * 0.8);
           --black-h: calc(var(--white-h) * 0.62);
         }
 
