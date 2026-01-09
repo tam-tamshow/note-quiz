@@ -85,7 +85,7 @@ export default function PianoKeyboard({
           title={midiToName(k.midi)}
           className="black-key"
           style={{
-            left: `calc(var(--white-w) * (${k.whiteIndex} + 0.68) - var(--black-w) / 2)`,
+            left: `calc(var(--white-w) * (${k.whiteIndex} + 1))`,
           }}
         >
           <span className="black-key-label">{k.label}</span>
@@ -100,7 +100,7 @@ export default function PianoKeyboard({
           user-select: none;
           --white-w: calc(100% / var(--white-count));
           --white-h: clamp(120px, 32vw, 170px);
-          --black-w: calc(var(--white-w) * 0.6);
+          --black-w: var(--white-w);
           --black-h: calc(var(--white-h) * 0.62);
         }
 
@@ -141,10 +141,11 @@ export default function PianoKeyboard({
           top: 0;
           width: var(--black-w);
           height: var(--black-h);
-          border: 1px solid #111;
+          border: 1px solid #fff;
           background: #111;
           color: white;
           border-radius: 8px;
+          transform: translateX(-50%);
           display: flex;
           align-items: flex-end;
           justify-content: center;
