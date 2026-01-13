@@ -2,14 +2,14 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { basePath } from "@/lib/quiz/paths";
 
-const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace(`${base}/quiz`);
+    router.replace(`${basePath}/quiz`);
   }, [router]);
 
   return (

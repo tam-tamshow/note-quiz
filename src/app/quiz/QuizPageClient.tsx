@@ -6,6 +6,7 @@ import Link from "next/link";
 import ScoreSvg from "./ScoreSvg";
 
 import { midiToLetter, midiToName } from "@/lib/quiz/music";
+import { basePath } from "@/lib/quiz/paths";
 import { loadAttempts, saveAttempt, type Attempt } from "@/lib/quiz/storage";
 import {
   loadSettings,
@@ -17,7 +18,6 @@ import {
 import { generateQuestion, type Question } from "@/lib/quiz/generator";
 import PianoKeyboard from "./PianoKeyboard";
 
-const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const WHITE_MIDI = new Map([
   ["C", 0],
   ["D", 2],
@@ -323,8 +323,8 @@ export default function QuizPageClient() {
 
       {/* ===== ナビ ===== */}
       <div style={{ marginTop: 16, display: "flex", gap: 12 }}>
-        <Link href={`${base}/stats`}>成績を見る</Link>
-        <Link href={`${base}/`}>トップへ</Link>
+        <Link href={`${basePath}/stats`}>成績を見る</Link>
+        <Link href={`${basePath}/`}>トップへ</Link>
       </div>
       <style jsx>{`
         .quiz-main {
