@@ -1,7 +1,6 @@
 // app/quiz/ScoreSvg.tsx
 import { ledgerLineStepsForTreble, trebleStepFromMidi } from "@/lib/quiz/staff";
-
-const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+import { basePath } from "@/lib/quiz/paths";
 
 type Props = {
   midi: number;
@@ -66,7 +65,7 @@ export default function ScoreSvg({ midi, width = 350, height = 180 }: Props) {
 
       {/* ト音記号 */}
       <image
-        href={`${base}/treble_clef.svg`}
+        href={`${basePath}/treble_clef.svg`}
         x={clefX}
         y={clefY}
         width={clefW}
