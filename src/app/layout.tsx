@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Note Quiz｜音符読みトレーニング",
   description: "五線譜の音符を見て音名を当てる学習アプリ",
+  icons: {
+    icon: "/treble_clef.svg",
+  },
 };
 
 export default function RootLayout({
