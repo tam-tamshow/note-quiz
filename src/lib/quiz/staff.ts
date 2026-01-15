@@ -54,6 +54,36 @@ export function trebleStepFromMidi(midi: number): number {
   return diatonic - baseE4;
 }
 
+type Accidental = "#" | "b" | null;
+
+const PC_TO_STEP: { letter: keyof typeof LETTER_INDEX; accidental: Accidental }[] =
+  [
+    { letter: "C", accidental: null },
+    { letter: "C", accidental: "#" },
+    { letter: "D", accidental: null },
+    { letter: "D", accidental: "#" },
+    { letter: "E", accidental: null },
+    { letter: "F", accidental: null },
+    { letter: "F", accidental: "#" },
+    { letter: "G", accidental: null },
+    { letter: "G", accidental: "#" },
+    { letter: "A", accidental: null },
+    { letter: "A", accidental: "#" },
+    { letter: "B", accidental: null },
+  ];
+
+export function trebleStepFromMidiWithAccidental(midi: number): {
+  step: number;
+  accidental: Accidental;
+} {
+  const pc = ((midi % 12) + 12) % 12;
+  const mapping = PC_TO_STEP[pc];
+  const octave = midiToOctave(midi);
+  const diatonic = octave * 7 + LETTER_INDEX[mapping.letter];
+  const baseE4 = 4 * 7 + LETTER_INDEX["E"];
+  return { step: diatonic - baseE4, accidental: mapping.accidental };
+}
+
 /**
  * staff steps: 0..8 が五線内
  * step0=E4(下線), step8=F5(上線)

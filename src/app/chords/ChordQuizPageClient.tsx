@@ -3,20 +3,31 @@
 import { useState } from "react";
 import Link from "next/link";
 
-import ScoreSvg from "./ScoreSvg";
+import ChordScoreSvg from "./ChordScoreSvg";
 
-import { midiToLetter, midiToName } from "@/lib/quiz/music";
 import { basePath } from "@/lib/quiz/paths";
-import { loadAttempts, saveAttempt, type Attempt } from "@/lib/quiz/storage";
 import {
-  loadSettings,
-  saveSettings,
-  type QuizSettings,
+  CHORD_TYPES,
+  formatChordName,
+} from "@/lib/quiz/chords";
+import {
+  loadChordSettings,
+  saveChordSettings,
+  type ChordQuizSettings,
   MIN_MIDI,
   MAX_MIDI,
-} from "@/lib/quiz/settings";
-import { generateQuestion, type Question } from "@/lib/quiz/generator";
-import PianoKeyboard from "./PianoKeyboard";
+} from "@/lib/quiz/chordSettings";
+import {
+  loadChordAttempts,
+  saveChordAttempt,
+  type ChordAttempt,
+} from "@/lib/quiz/chordStorage";
+import {
+  generateChordQuestion,
+  listChordAnswerIds,
+  type ChordQuestion,
+} from "@/lib/quiz/chordGenerator";
+import { midiToName } from "@/lib/quiz/music";
 
 const WHITE_MIDI = new Map([
   ["C", 0],
@@ -31,14 +42,18 @@ const WHITE_MIDI = new Map([
 type Result = {
   answered: true;
   correct: boolean;
-  correctMidi: number;
-  answerMidi: number;
+  correctChordId: string;
+  answerChordId: string;
 } | null;
 
-export default function QuizPageClient() {
-  const initialSettings = loadSettings();
-  const [settings, setSettings] = useState<QuizSettings>(() => initialSettings); // 初期値を関数で設定
-  const [attempts, setAttempts] = useState<Attempt[]>(() => loadAttempts()); // 初期値を関数で設定
+export default function ChordQuizPageClient() {
+  const initialSettings = loadChordSettings();
+  const [settings, setSettings] = useState<ChordQuizSettings>(
+    () => initialSettings
+  );
+  const [attempts, setAttempts] = useState<ChordAttempt[]>(() =>
+    loadChordAttempts()
+  );
   const [minInput, setMinInput] = useState(() =>
     midiToName(initialSettings.minMidi)
   );
@@ -47,22 +62,17 @@ export default function QuizPageClient() {
   );
   const [minError, setMinError] = useState<string | null>(null);
   const [maxError, setMaxError] = useState<string | null>(null);
-  const [q, setQ] = useState<Question | null>(() =>
-    generateQuestion(initialSettings, loadAttempts())
-  ); // 初期値を計算
+  const [q, setQ] = useState<ChordQuestion | null>(() =>
+    generateChordQuestion(initialSettings, loadChordAttempts())
+  );
   const [result, setResult] = useState<Result>(null);
 
-  /* ---------- 次の問題 ---------- */
-  function nextQuestion(nextSettings?: QuizSettings) {
+  function nextQuestion(nextSettings?: ChordQuizSettings) {
     const s = nextSettings ?? settings;
-    const a = loadAttempts();
+    const a = loadChordAttempts();
     setAttempts(a);
-    setQ(generateQuestion(s, a));
+    setQ(generateChordQuestion(s, a));
     setResult(null);
-  }
-
-  function samePitchClass(a: number, b: number) {
-    return ((a % 12) + 12) % 12 === ((b % 12) + 12) % 12;
   }
 
   function parseWhiteNote(value: string): number | null {
@@ -100,35 +110,32 @@ export default function QuizPageClient() {
     }
   }
 
-  /* ---------- 回答 ---------- */
-  function answer(answerMidi: number) {
+  function answer(answerChordId: string) {
     if (!q) return;
+    const correct = answerChordId === q.chordId;
 
-    const correct = samePitchClass(q.midi, answerMidi);
-
-    saveAttempt({
+    saveChordAttempt({
       questionId: q.id,
-      questionMidi: q.midi,
-      answerMidi,
+      questionChordId: q.chordId,
+      questionRootMidi: q.rootMidi,
+      answerChordId,
       correct,
     });
 
-    const a = loadAttempts();
+    const a = loadChordAttempts();
     setAttempts(a);
 
     setResult({
       answered: true,
       correct,
-      correctMidi: q.midi,
-      answerMidi,
+      correctChordId: q.chordId,
+      answerChordId,
     });
   }
 
-  /* ---------- 設定更新 ---------- */
-  function updateSettings(patch: Partial<QuizSettings>) {
-    const next: QuizSettings = { ...settings, ...patch };
+  function updateSettings(patch: Partial<ChordQuizSettings>) {
+    const next: ChordQuizSettings = { ...settings, ...patch };
 
-    // min/max 入れ替え対策
     if (next.minMidi > next.maxMidi) {
       [next.minMidi, next.maxMidi] = [next.maxMidi, next.minMidi];
     }
@@ -142,23 +149,33 @@ export default function QuizPageClient() {
       Math.max(MIN_MIDI, Math.trunc(next.maxMidi))
     );
 
+    if (!next.enabledChordTypeIds || next.enabledChordTypeIds.length === 0) {
+      next.enabledChordTypeIds = settings.enabledChordTypeIds;
+    }
+
     setSettings(next);
     setMinInput(midiToName(next.minMidi));
     setMaxInput(midiToName(next.maxMidi));
-    saveSettings(next);
+    saveChordSettings(next);
     nextQuestion(next);
   }
+
+  const availableTypes = CHORD_TYPES;
+  const answerOptions = listChordAnswerIds(settings).map((id) => {
+    const [pcRaw, typeId] = id.split(":");
+    const pc = Number(pcRaw);
+    return { id, label: formatChordName(pc, typeId) };
+  });
 
   return (
     <main
       className="quiz-main"
-      style={{ maxWidth: 430, margin: "24px auto", padding: 16, width: "100%" }}
+      style={{ maxWidth: 480, margin: "24px auto", padding: 16, width: "100%" }}
     >
       <h1 className="quiz-title" style={{ fontSize: 28, fontWeight: 700 }}>
-        Note Quiz
+        Chord Quiz
       </h1>
 
-      {/* ===== 出題設定 ===== */}
       <details
         className="settings-accordion"
         style={{
@@ -220,6 +237,38 @@ export default function QuizPageClient() {
               <div style={{ fontSize: 12, color: "#8a2a2a" }}>{maxError}</div>
             )}
 
+            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+              <span style={{ width: 120 }}>コード種類</span>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                {availableTypes.map((type) => {
+                  const checked = settings.enabledChordTypeIds.includes(type.id);
+                  const disableToggle =
+                    checked && settings.enabledChordTypeIds.length <= 1;
+                  return (
+                    <label key={type.id} style={{ display: "flex", gap: 6 }}>
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        disabled={disableToggle}
+                        onChange={(e) => {
+                          const nextIds = new Set(settings.enabledChordTypeIds);
+                          if (e.target.checked) {
+                            nextIds.add(type.id);
+                          } else {
+                            nextIds.delete(type.id);
+                          }
+                          updateSettings({
+                            enabledChordTypeIds: [...nextIds],
+                          });
+                        }}
+                      />
+                      <span>{type.label}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
             <label style={{ display: "flex", gap: 12 }}>
               <span style={{ width: 120 }}>苦手優先</span>
               <input
@@ -256,7 +305,6 @@ export default function QuizPageClient() {
         </div>
       </details>
 
-      {/* ===== 出題 ===== */}
       <div
         style={{
           marginTop: 16,
@@ -266,25 +314,33 @@ export default function QuizPageClient() {
         }}
       >
         <div className="score-wrap">
-          {q ? <ScoreSvg midi={q.midi} /> : "Loading..."}
+          {q ? <ChordScoreSvg midis={q.notes} /> : "Loading..."}
         </div>
       </div>
 
-      {/* ===== 回答 ===== */}
       <div style={{ marginTop: 16 }}>
         <div style={{ fontWeight: 600, marginBottom: 8 }}>
-          答えを選んでください
+          和音名を選んでください
         </div>
 
-        <div className="keyboard-wrap">
-          <PianoKeyboard
-            onPick={answer}
-            disabled={!q || !!result}
-            baseMidi={60} // C4開始（今は固定）
-          />
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {answerOptions.map((opt) => (
+            <button
+              key={opt.id}
+              onClick={() => answer(opt.id)}
+              disabled={!q || !!result}
+              style={{
+                padding: "8px 12px",
+                borderRadius: 10,
+                border: "1px solid #ccc",
+                minWidth: 64,
+              }}
+            >
+              {opt.label}
+            </button>
+          ))}
         </div>
 
-        {/* ===== 結果 ===== */}
         {result && (
           <div
             style={{
@@ -301,8 +357,17 @@ export default function QuizPageClient() {
             {!result.correct && (
               <div style={{ marginTop: 8 }}>
                 正解：
-                <b>{midiToName(result.correctMidi)}</b>／ あなた：
-                {midiToLetter(result.answerMidi)}
+                <b>
+                  {formatChordName(
+                    Number(result.correctChordId.split(":")[0]),
+                    result.correctChordId.split(":")[1]
+                  )}
+                </b>
+                ／ あなた：
+                {formatChordName(
+                  Number(result.answerChordId.split(":")[0]),
+                  result.answerChordId.split(":")[1]
+                )}
               </div>
             )}
 
@@ -321,10 +386,9 @@ export default function QuizPageClient() {
         )}
       </div>
 
-      {/* ===== ナビ ===== */}
       <div style={{ marginTop: 16, display: "flex", gap: 12 }}>
-        <Link href={`${basePath}/chords`}>和音クイズへ</Link>
-        <Link href={`${basePath}/stats`}>成績を見る</Link>
+        <Link href={`${basePath}/quiz`}>単音クイズへ</Link>
+        <Link href={`${basePath}/chords/stats`}>成績を見る</Link>
         <Link href={`${basePath}/`}>トップへ</Link>
       </div>
       <style jsx>{`
@@ -342,12 +406,6 @@ export default function QuizPageClient() {
           width: 100%;
           height: auto;
           display: block;
-        }
-
-        .keyboard-wrap {
-          display: flex;
-          justify-content: center;
-          width: 100%;
         }
 
         @media (max-width: 520px) {
